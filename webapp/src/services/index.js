@@ -2,7 +2,7 @@ import axios from 'axios';
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 import { Auth } from 'aws-amplify';
 
-const SERVICES_HOST = 'window.appConfig.apiEndpoint';
+const SERVICES_HOST = window.appConfig.apiEndpoint;
 let client;
 
 /* eslint-disable no-console */

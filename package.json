@@ -2,7 +2,7 @@
   "name": "ps-serverless-app",
   "private": true,
   "workspaces": [
-    "infrastructure",
+    "cdk-simple",
     "webapp",
     "services/*"
   ],
