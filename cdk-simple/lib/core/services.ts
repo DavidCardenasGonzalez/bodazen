@@ -4,7 +4,7 @@ import {
   aws_dynamodb as dynamodb,
   aws_iam as iam,
   aws_s3 as s3,
-  // aws_cognito as cognito,
+  aws_cognito as cognito,
   aws_ssm as ssm,
   aws_lambda_nodejs as ln,
   Duration
@@ -15,7 +15,7 @@ interface AppServicesProps {
   documentsTable: dynamodb.ITable;
   uploadBucket: s3.IBucket;
   assetBucket: s3.IBucket;
-  // userPool: cognito.IUserPool;
+  userPool: cognito.IUserPool;
 }
 
 export class AppServices extends Construct {
@@ -25,7 +25,7 @@ export class AppServices extends Construct {
 
   public readonly notificationsService: ln.NodejsFunction;
 
-  // public readonly usersService: ln.NodejsFunction;
+  public readonly usersService: ln.NodejsFunction;
 
   constructor(scope: Construct, id: string, props: AppServicesProps) {
     super(scope, id);
@@ -84,19 +84,19 @@ export class AppServices extends Construct {
 
     // Users Service ------------------------------------------------------
 
-    // this.usersService = new NodejsServiceFunction(this, 'UsersServiceLambda', {
-    //   entry: path.join(__dirname, '../../../services/users/index.js'),
-    // });
+    this.usersService = new NodejsServiceFunction(this, 'UsersServiceLambda', {
+      entry: path.join(__dirname, '../../../services/users/index.js'),
+    });
 
-    // this.usersService.addEnvironment('USER_POOL_ID', props.userPool.userPoolId);
-    // this.usersService.addEnvironment('ASSET_BUCKET', props.assetBucket.bucketName);
-    // props.assetBucket.grantReadWrite(this.usersService);
+    this.usersService.addEnvironment('USER_POOL_ID', props.userPool.userPoolId);
+    this.usersService.addEnvironment('ASSET_BUCKET', props.assetBucket.bucketName);
+    props.assetBucket.grantReadWrite(this.usersService);
 
-    // this.usersService.addToRolePolicy(
-    //   new iam.PolicyStatement({
-    //     resources: [props.userPool.userPoolArn],
-    //     actions: ['cognito-idp:*'],
-    //   }),
-    // );
+    this.usersService.addToRolePolicy(
+      new iam.PolicyStatement({
+        resources: [props.userPool.userPoolArn],
+        actions: ['cognito-idp:*'],
+      }),
+    );
   }
 }

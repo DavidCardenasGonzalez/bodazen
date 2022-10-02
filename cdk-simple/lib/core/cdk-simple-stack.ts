@@ -6,8 +6,8 @@ import { AppDatabase } from './database';
 import { AppServices } from './services';
 import { ApplicationAPI } from './api';
 import { ApplicationEvents } from './events';
-// import { ApplicationAuth } from './auth';
-// import { ApplicationMonitoring } from './monitoring';
+import { ApplicationAuth } from './auth';
+import { ApplicationMonitoring } from './monitoring';
 import { DocumentProcessing } from './processing';
 
 export class CdkSimpleStack extends Stack {
@@ -15,14 +15,24 @@ export class CdkSimpleStack extends Stack {
     super(scope, id, props);
 
     const storage = new AssetStorage(this, 'Storage');
-    
+
+    const auth = new ApplicationAuth(this, 'Auth');
+
     const database = new AppDatabase(this, 'Database');
 
     const services = new AppServices(this, 'Services', {
       documentsTable: database.documentsTable,
       uploadBucket: storage.uploadBucket,
       assetBucket: storage.assetBucket,
-      // userPool: auth.userPool,
+      userPool: auth.userPool,
+    });
+
+    const api = new ApplicationAPI(this, 'API', {
+      commentsService: services.commentsService,
+      documentsService: services.documentsService,
+      usersService: services.usersService,
+      userPool: auth.userPool,
+      userPoolClient: auth.userPoolClient,
     });
 
     const processing = new DocumentProcessing(this, 'Processing', {
@@ -37,23 +47,24 @@ export class CdkSimpleStack extends Stack {
       notificationsService: services.notificationsService,
     });
 
-    const api = new ApplicationAPI(this, 'API', {
-      commentsService: services.commentsService,
-      documentsService: services.documentsService,
-      // usersService: services.usersService,
-      // userPool: auth.userPool,
-      // userPoolClient: auth.userPoolClient,
-    });
-    
     const webapp = new WebApp(this, 'WebApp', {
       hostingBucket: storage.hostingBucket,
       baseDirectory: '../',
       relativeWebAppPath: 'webapp',
       httpApi: api.httpApi,
-      // userPool: auth.userPool,
-      // userPoolClient: auth.userPoolClient,
+      userPool: auth.userPool,
+      userPoolClient: auth.userPoolClient,
     });
-    // webapp.node.addDependency(auth);
+    webapp.node.addDependency(auth);
 
+    new ApplicationMonitoring(this, 'Monitoring', {
+      api: api.httpApi,
+      table: database.documentsTable,
+      processingStateMachine: processing.processingStateMachine,
+      assetsBucket: storage.assetBucket,
+      documentsService: services.documentsService,
+      commentsService: services.commentsService,
+      usersService: services.usersService,
+    });
   }
 }

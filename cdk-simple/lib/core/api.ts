@@ -15,9 +15,9 @@ import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-al
 interface ApplicationAPIProps {
   commentsService: lambda.IFunction;
   documentsService: lambda.IFunction;
-  // usersService: lambda.IFunction;
-  // userPool: cognito.IUserPool;
-  // userPoolClient: cognito.IUserPoolClient;
+  usersService: lambda.IFunction;
+  userPool: cognito.IUserPool;
+  userPoolClient: cognito.IUserPoolClient;
 }
 
 export class ApplicationAPI extends Construct {
@@ -56,7 +56,9 @@ export class ApplicationAPI extends Construct {
 
     // Authorizer -------------------------------------------------------
 
-    // const authorizer = new HttpUserPoolAuthorizer('Authorizer', props.userPool);
+    const authorizer = new HttpUserPoolAuthorizer('Authorizer', props.userPool, {
+      userPoolClients: [props.userPoolClient]
+    });
 
     // Comments Service -------------------------------------------------
 
@@ -67,7 +69,7 @@ export class ApplicationAPI extends Construct {
       path: `/comments/{proxy+}`,
       methods: serviceMethods,
       integration: commentsServiceIntegration,
-      // authorizer,
+      authorizer,
     });
 
     // Documents Service ------------------------------------------------
@@ -84,15 +86,15 @@ export class ApplicationAPI extends Construct {
 
     // Users Service ------------------------------------------------------
 
-    // const usersServiceIntegration = new HttpLambdaIntegration('UsersIntegration',
-    //   props.usersService);
+    const usersServiceIntegration = new HttpLambdaIntegration('UsersIntegration',
+      props.usersService);
 
-    // this.httpApi.addRoutes({
-    //   path: `/users/{proxy+}`,
-    //   methods: serviceMethods,
-    //   integration: usersServiceIntegration,
-    //   authorizer,
-    // });
+    this.httpApi.addRoutes({
+      path: `/users/{proxy+}`,
+      methods: serviceMethods,
+      integration: usersServiceIntegration,
+      authorizer,
+    });
 
     // Moderate ----------------------------------------------------------
 

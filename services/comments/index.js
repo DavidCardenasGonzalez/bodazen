@@ -54,8 +54,7 @@ const getAllCommentsForDocument = async (request, response) => {
 
 // Creates a new comment for a document
 const createComment = async (request, response) => {
-  const userId = "lkjlkjl-jghjg-jyfuhfh";
-  // const userId = request.event.requestContext.authorizer.jwt.claims.username;
+  const userId = request.event.requestContext.authorizer.jwt.claims.username;
   const commentId = `Comment#${generateID()}`;
   const item = {
     PK: request.pathVariables.docid,

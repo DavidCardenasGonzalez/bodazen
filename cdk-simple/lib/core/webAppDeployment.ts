@@ -102,29 +102,10 @@ export class WebAppDeployment extends Construct {
       prune: props.prune ?? true,
       distribution: props.webDistribution,
       distributionPaths: props.webDistributionPaths,
-      sources: [
-        s3Deploy.Source.asset(buildBaseDirectory, {
-          bundling: {
-            image: dockerImage,
-            entrypoint: ['/bin/sh', '-c'],
-            command: [
-              '/bin/sh',
-              '-c',
-              getDockerCommand(props),
-            ],
-          },
-        }),
-      ],
+      sources: [s3Deploy.Source.asset('../webapp/build')],
       destinationBucket: props.bucket,
     };
 
-    // new s3Deploy.BucketDeployment(this, 'WebAppDeploy', deployProps);
-    console.log(__dirname);
-    new s3Deploy.BucketDeployment(this, 'DeployWithInvalidation', {
-      sources: [s3Deploy.Source.asset('../webapp/build')],
-      destinationBucket: props.bucket,
-      distribution: props.webDistribution,
-      distributionPaths: props.webDistributionPaths,
-    });
+    new s3Deploy.BucketDeployment(this, 'WebAppDeploy', deployProps);
   }
 }

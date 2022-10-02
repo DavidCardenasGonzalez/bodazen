@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import {
   aws_s3 as s3,
-  // aws_cognito as cognito,
+  aws_cognito as cognito,
   aws_cloudfront as cloudfront,
   CfnOutput,
 } from 'aws-cdk-lib';
@@ -14,8 +14,8 @@ interface WebAppProps {
   relativeWebAppPath: string;
   baseDirectory: string;
   httpApi:apigv2.IHttpApi;
-  // userPool: cognito.IUserPool;
-  // userPoolClient: cognito.IUserPoolClient;
+  userPool: cognito.IUserPool;
+  userPoolClient: cognito.IUserPoolClient;
 }
 
 export class WebApp extends Construct {
@@ -82,13 +82,13 @@ export class WebApp extends Construct {
 
     new cwt.WebAppConfig(this, 'WebAppConfig', {
       bucket: props.hostingBucket,
-      key: 'config.js',
+      key: 'app-config2.js',
       configData: {
         apiEndpoint: props.httpApi.apiEndpoint,
-        // userPoolId: props.userPool.userPoolId,
-        // userPoolWebClientId: props.userPoolClient.userPoolClientId,
+        userPoolId: props.userPool.userPoolId,
+        userPoolWebClientId: props.userPoolClient.userPoolClientId,
       },
       globalVariableName: 'appConfig'
-    }).node.addDependency(deployment);
+    });
   }
 }
