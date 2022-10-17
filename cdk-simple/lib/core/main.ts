@@ -10,61 +10,68 @@ import { ApplicationAuth } from './auth';
 import { ApplicationMonitoring } from './monitoring';
 import { DocumentProcessing } from './processing';
 
-export class CdkSimpleStack extends Stack {
+export class BodazenInfrastructureMain extends Stack {
+  public storage: AssetStorage;
+  public auth: ApplicationAuth;
+  public database: AppDatabase;
+
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const storage = new AssetStorage(this, 'Storage');
+    this.storage = new AssetStorage(this, 'Storage');
 
-    const auth = new ApplicationAuth(this, 'Auth');
+    this.auth = new ApplicationAuth(this, 'Auth');
 
-    const database = new AppDatabase(this, 'Database');
+    this.database = new AppDatabase(this, 'Database');
 
     const services = new AppServices(this, 'Services', {
-      documentsTable: database.documentsTable,
-      uploadBucket: storage.uploadBucket,
-      assetBucket: storage.assetBucket,
-      userPool: auth.userPool,
+      documentsTable: this.database.documentsTable,
+      uploadBucket: this.storage.uploadBucket,
+      assetBucket: this.storage.assetBucket,
+      userPool: this.auth.userPool,
     });
+    services.node.addDependency(this.storage);
 
     const api = new ApplicationAPI(this, 'API', {
       commentsService: services.commentsService,
       documentsService: services.documentsService,
       usersService: services.usersService,
-      userPool: auth.userPool,
-      userPoolClient: auth.userPoolClient,
+      userPool: this.auth.userPool,
+      userPoolClient: this.auth.userPoolClient,
     });
 
     const processing = new DocumentProcessing(this, 'Processing', {
-      uploadBucket: storage.uploadBucket,
-      assetBucket: storage.assetBucket,
-      documentsTable: database.documentsTable,
+      uploadBucket: this.storage.uploadBucket,
+      assetBucket: this.storage.assetBucket,
+      documentsTable: this.database.documentsTable,
     });
 
     new ApplicationEvents(this, 'Events', {
-      uploadBucket: storage.uploadBucket,
+      uploadBucket: this.storage.uploadBucket,
       processingStateMachine: processing.processingStateMachine,
       notificationsService: services.notificationsService,
     });
 
     const webapp = new WebApp(this, 'WebApp', {
-      hostingBucket: storage.hostingBucket,
+      hostingBucket: this.storage.hostingBucket,
       baseDirectory: '../',
       relativeWebAppPath: 'webapp',
       httpApi: api.httpApi,
-      userPool: auth.userPool,
-      userPoolClient: auth.userPoolClient,
+      userPool: this.auth.userPool,
+      userPoolClient: this.auth.userPoolClient,
     });
-    webapp.node.addDependency(auth);
+    webapp.node.addDependency(this.auth);
 
     new ApplicationMonitoring(this, 'Monitoring', {
       api: api.httpApi,
-      table: database.documentsTable,
+      table: this.database.documentsTable,
       processingStateMachine: processing.processingStateMachine,
-      assetsBucket: storage.assetBucket,
+      assetsBucket: this.storage.assetBucket,
       documentsService: services.documentsService,
       commentsService: services.commentsService,
       usersService: services.usersService,
     });
+  
   }
+  
 }

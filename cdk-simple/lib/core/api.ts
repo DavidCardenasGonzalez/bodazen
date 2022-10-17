@@ -81,7 +81,7 @@ export class ApplicationAPI extends Construct {
       path: `/documents/{proxy+}`,
       methods: serviceMethods,
       integration: documentsServiceIntegration,
-      // authorizer,
+      authorizer,
     });
 
     // Users Service ------------------------------------------------------

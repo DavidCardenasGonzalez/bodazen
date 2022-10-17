@@ -19,6 +19,8 @@ export class ApplicationEvents extends Construct {
 
     // Trigger Step Function from S3 Upload ------------------------------
 
+    console.log(props.uploadBucket);
+
     const uploadRule = props.uploadBucket.onCloudTrailWriteObject('UploadRule', {});
 
     const stateMachineTarget = new targets.SfnStateMachine(props.processingStateMachine, {});
