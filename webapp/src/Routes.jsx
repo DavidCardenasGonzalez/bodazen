@@ -6,14 +6,14 @@ import {
 } from 'react-router-dom';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
-import Header from './views/Header';
 import Footer from './views/Footer';
 import theme from './theme';
 import './App.css';
-import List from './views/List';
+import DocumentsList from './views/DocumentsList';
 import Profile from './views/Profile';
 import Detail from './views/Detail';
 import Users from './views/Users';
+import Employee from './views/Employees';
 import NotFound from './views/NotFound';
 import Upload from './views/Upload';
 import { UserProvider } from './UserContext';
@@ -42,11 +42,11 @@ function Routes() {
           render={() => (
             <UserProvider>
               <Paper className={classes.root}>
-                <Header />
                 <div className={classes.content}>
                   <Switch>
-                    <Route exact path="/" component={List} />
+                    <Route exact path="/" component={DocumentsList} />
                     <Route exact path="/profile" component={Profile} />
+                    <Route exact path="/employees" component={Employee} />
                     <Route exact path="/users" component={Users} />
                     <Route exact path="/users/create" component={CreateUser} />
                     <Route path="/document/:documentId" component={Detail} />

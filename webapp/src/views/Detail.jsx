@@ -107,7 +107,7 @@ function Detail() {
       return <></>;
     }
     return (
-      <Grid container direction="row" alignItems="center" justify="flex-end" spacing={1}>
+      <Grid container direction="row" alignItems="center" justifyContent="flex-end" spacing={1}>
         <AuthGroupWrapper requiredGroups={['admin', 'contributor']}>
           <Grid item>
             <Button variant="outlined" color="secondary" className={classes.uploadButton} onClick={deleteCurrentDocument}>Delete Document</Button>

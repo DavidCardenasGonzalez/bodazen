@@ -39,6 +39,11 @@ function UserBadge() {
     setOpen(false);
   };
 
+  const onEmployees = () => {
+    history.push('/employees');
+    setOpen(false);
+  };
+
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
@@ -91,7 +96,8 @@ function UserBadge() {
                 <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
                   <MenuItem onClick={onProfileEdit}>Edit My Profile</MenuItem>
                   <AuthGroupWrapper requiredGroups={['admin']}>
-                    <MenuItem onClick={onManageUsers}>Manage Users</MenuItem>
+                    <MenuItem onClick={onManageUsers}>Usuarios</MenuItem>
+                    <MenuItem onClick={onEmployees}>Empleados</MenuItem>
                   </AuthGroupWrapper>
                   <MenuItem onClick={signOut}>Logout</MenuItem>
                 </MenuList>

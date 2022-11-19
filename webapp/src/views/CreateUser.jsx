@@ -107,16 +107,20 @@ function CreateUser() {
       link: '/',
     },
     {
-      name: 'Manage Users',
+      name: 'Crear Empleados',
+      link: '/employees',
+    },
+    {
+      name: 'Usuarios',
       link: '/users',
     },
     {
-      name: 'Create User',
+      name: 'Crear Usuario',
     },
   ];
 
   return (
-    <Page title="Create User" breadcrumbs={getBreadcrumbs()}>
+    <Page title="Crear Usuario" breadcrumbs={getBreadcrumbs()}>
       { isSuccessVisible
       && <MuiAlert onClose={() => setIsSuccessVisible(false)} className={classes.alert} severity="success" elevation={6} variant="filled">User successfully created</MuiAlert> }
       { isErrorVisible
@@ -174,8 +178,7 @@ function CreateUser() {
             startIcon={getButtonIcon()}
             onClick={createUser}
           >
-            Create User
-
+            Crear Usuario
           </Button>
         </Grid>
       </Grid>

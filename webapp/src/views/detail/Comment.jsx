@@ -78,7 +78,7 @@ function Comment({ comment }) {
           <Avatar className={classes.small} src={getPictureURL()} />
         </Grid>
         <Grid item xs={11}>
-          <Grid container justify="space-between">
+          <Grid container justifyContent="space-between">
             <Typography variant="body1" gutterBottom>
               <span className={classes.username}>{getUsername()}</span>
               {' '}

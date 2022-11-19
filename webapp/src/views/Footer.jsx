@@ -30,7 +30,7 @@ function Footer() {
   };
 
   return (
-    <Grid container className={classes.root} alignContent="center" alignItems="center" justify="space-between">
+    <Grid container className={classes.root} alignContent="center" alignItems="center" justifyContent="space-between">
       <Grid item className={classes.footerContent}>
         <img src="/images/ps-logo.png" alt="Pluralsight Logo" className={classes.footerLogo} onClick={handleLogoClick} />
       </Grid>

@@ -147,10 +147,10 @@ function Upload() {
 
   return (
     <Page title="Upload Document" breadcrumbs={getBreadcrumbs()}>
-      { isSuccessVisible
-      && <MuiAlert onClose={() => setIsSuccessVisible(false)} className={classes.alert} severity="success" elevation={6} variant="filled">Document successfully uploaded</MuiAlert> }
-      { errorMessage
-      && <MuiAlert onClose={() => setErrorMessage('')} className={classes.alert} severity="error" elevation={6} variant="filled">{ errorMessage }</MuiAlert> }
+      {isSuccessVisible
+        && <MuiAlert onClose={() => setIsSuccessVisible(false)} className={classes.alert} severity="success" elevation={6} variant="filled">Document successfully uploaded</MuiAlert>}
+      {errorMessage
+        && <MuiAlert onClose={() => setErrorMessage('')} className={classes.alert} severity="error" elevation={6} variant="filled">{errorMessage}</MuiAlert>}
       <Grid container spacing={2} alignItems="stretch">
         <Grid item xs={12} sm={6} className={classes.container}>
           <Card className={classes.card}>
@@ -199,18 +199,18 @@ function Upload() {
                 type="file"
               />
               <label htmlFor="raised-button-file">
-                { !hasFile()
-                && (
-                <Button variant="outlined" component="span" className={classes.button}>
-                  Add File
-                </Button>
-                ) }
-                { hasFile()
-                && (
-                <Button variant="outlined" color="secondary" component="span" onClick={removeFile} className={classes.button}>
-                  Remove File
-                </Button>
-                ) }
+                {!hasFile()
+                  && (
+                    <Button variant="outlined" component="span" className={classes.button}>
+                      Add File
+                    </Button>
+                  )}
+                {hasFile()
+                  && (
+                    <Button variant="outlined" color="secondary" component="span" onClick={removeFile} className={classes.button}>
+                      Remove File
+                    </Button>
+                  )}
               </label>
             </CardContent>
           </Card>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-
 import DocumentsTable from '../components/DocumentsTable';
 import Page from '../containers/Page';
 
@@ -16,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function List() {
+function DocumentsList() {
   const theme = useTheme();
   const classes = useStyles(theme);
   return (
@@ -26,4 +25,4 @@ function List() {
   );
 }
 
-export default List;
+export default DocumentsList;

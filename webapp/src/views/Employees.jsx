@@ -17,19 +17,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Users() {
+function Employee() {
   const theme = useTheme();
   const history = useHistory();
   const classes = useStyles(theme);
 
   const onCreateUser = () => {
-    history.push('/users/create');
+    history.push('/employee/create');
   };
 
   const getActionButtons = () => (
     <Grid container direction="row" alignItems="center" justifyContent="flex-end" spacing={1}>
       <Grid item>
-        <Button variant="outlined" color="primary" onClick={onCreateUser}>Crear Usuario</Button>
+        <Button variant="outlined" color="primary" onClick={onCreateUser}>Crear Empleado</Button>
       </Grid>
     </Grid>
   );
@@ -40,13 +40,13 @@ function Users() {
       link: '/',
     },
     {
-      name: 'Users',
+      name: 'Empleados',
     },
   ];
 
   return (
     <Page
-      title="Users"
+      title="Empleados"
       breadcrumbs={getBreadcrumbs()}
       actionItems={getActionButtons()}
     >
@@ -55,4 +55,4 @@ function Users() {
   );
 }
 
-export default Users;
+export default Employee;

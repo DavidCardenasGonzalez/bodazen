@@ -40,7 +40,7 @@ function UserView({ userId }) {
 
   return (
     <div>
-      <Grid container spacing={2} className={classes.root} direction="row" justify="flex-start" alignItems="center">
+      <Grid container spacing={2} className={classes.root} direction="row" justifyContent="flex-start" alignItems="center">
         <Grid item>
           <Avatar className={classes.small} src={getPictureURL()} />
         </Grid>

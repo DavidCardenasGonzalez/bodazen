@@ -18,7 +18,7 @@ function LoadingView({ size }) {
       spacing={0}
       direction="column"
       alignItems="center"
-      justify="flex-start"
+      justifyContent="flex-start"
       className={classes.root}
     >
       <Grid item xs>
