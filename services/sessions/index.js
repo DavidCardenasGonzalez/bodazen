@@ -1,16 +1,3 @@
-/*
-
-  Pluralsight Serverless Development Path (https://tuck.cc/serverlessDev)
-  Author: David Tucker (davidtucker.net)
-
-  ---
-
-  Comments Service
-
-  This Lambda function handles all interactions for comments in the document
-  management system application (create, delete, get).
-
-*/
 import {
   createRouter,
   RouterType,
@@ -38,14 +25,14 @@ const schemas = {
 // SERVICE FUNCTIONS
 //------------------------------------------------------------------------
 
-// Get all comments for a document
+// Get all sessions for a document
 const getAllCommentsForDocument = async (request, response) => {
   const params = {
     TableName: tableName,
     KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
     ExpressionAttributeValues: {
       ':pk': request.pathVariables.docid,
-      ':sk': 'Comment',
+      ':sk': 'Session',
     },
   };
   const results = await dynamoDB.query(params).promise();
@@ -54,11 +41,8 @@ const getAllCommentsForDocument = async (request, response) => {
 
 // Creates a new comment for a document
 const createComment = async (request, response) => {
-  console.log(request.event.requestContext);
-  console.log(request.event.requestContext.authorizer);
-  console.log(request.event.requestContext.authorizer.jwt);
   const userId = request.event.requestContext.authorizer.jwt.claims.username;
-  const commentId = `Comment#${generateID()}`;
+  const commentId = `Session#${generateID()}`;
   const item = {
     PK: request.pathVariables.docid,
     SK: commentId,
@@ -72,9 +56,6 @@ const createComment = async (request, response) => {
     ReturnValues: 'NONE',
   };
   await dynamoDB.put(params).promise();
-
-  // Send comment event using Eventbridge
-  // This will allow us to connect into this event for notifications
   const detail = {
     documentId: request.pathVariables.docid,
     commentId,
@@ -86,7 +67,7 @@ const createComment = async (request, response) => {
         DetailType: 'CommentAdded',
         EventBusName: 'com.globomantics.dms',
         Resources: [],
-        Source: 'com.globomantics.dms.comments',
+        Source: 'com.globomantics.dms.sessions',
       },
     ],
   };
@@ -101,7 +82,7 @@ const deleteComment = async (request, response) => {
     TableName: tableName,
     Key: {
       PK: request.pathVariables.docid,
-      SK: `Comment#${request.pathVariables.commentid}`,
+      SK: `Session#${request.pathVariables.commentid}`,
     },
   };
   await dynamoDB.delete(params).promise();
@@ -128,26 +109,26 @@ const deleteComment = async (request, response) => {
 */
 const router = createRouter(RouterType.HTTP_API_V2);
 
-// Get all comments for a document
-// GET /comments/(:docid)
+// Get all sessions for a document
+// GET /sessions/(:docid)
 router.add(
-  Matcher.HttpApiV2('GET', '/comments/(:docid)'),
+  Matcher.HttpApiV2('GET', '/sessions/(:docid)'),
   validatePathVariables(schemas.getComments),
   getAllCommentsForDocument,
 );
 
 // Create a new comment for a document
-// POST /comments/(:docid)
+// POST /sessions/(:docid)
 router.add(
-  Matcher.HttpApiV2('POST', '/comments/(:docid)'),
+  Matcher.HttpApiV2('POST', '/sessions/(:docid)'),
   validateBodyJSONVariables(schemas.createComment),
   createComment,
 );
 
 // Delete a comment for a document
-// DELETE /comments/(:docid)/(:commentid)
+// DELETE /sessions/(:docid)/(:commentid)
 router.add(
-  Matcher.HttpApiV2('DELETE', '/comments/(:docid)/(:commentid)'),
+  Matcher.HttpApiV2('DELETE', '/sessions/(:docid)/(:commentid)'),
   validatePathVariables(schemas.deleteComment),
   deleteComment,
 );

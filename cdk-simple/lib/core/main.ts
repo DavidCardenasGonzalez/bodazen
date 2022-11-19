@@ -26,9 +26,11 @@ export class BodazenInfrastructureMain extends Stack {
 
     const services = new AppServices(this, 'Services', {
       documentsTable: this.database.documentsTable,
+      sessionsTable: this.database.sessionsTable,
       uploadBucket: this.storage.uploadBucket,
       assetBucket: this.storage.assetBucket,
       userPool: this.auth.userPool,
+      postAuthTrigger: this.auth.postAuthTrigger,
     });
     services.node.addDependency(this.storage);
 

@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 
 export class AppDatabase extends Construct {
   public readonly documentsTable: dynamodb.ITable;
+  public readonly sessionsTable: dynamodb.ITable;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -34,5 +35,22 @@ export class AppDatabase extends Construct {
     });
 
     this.documentsTable = documentsTable;
+
+    // Sessions table ------------------
+
+
+    const sessionsTable = new dynamodb.Table(this, 'SessionsTable', {
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      partitionKey: {
+        name: 'PK',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'EmployeeId',
+        type: dynamodb.AttributeType.STRING,
+      },
+    });
+
+    this.sessionsTable = sessionsTable;
   }
 }

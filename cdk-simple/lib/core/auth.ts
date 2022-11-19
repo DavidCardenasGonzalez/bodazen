@@ -1,18 +1,30 @@
+import * as path from "path";
 import { aws_cognito as cognito } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { NodejsServiceFunction } from "../constructs/lambda";
 
 export class ApplicationAuth extends Construct {
   public readonly userPool: cognito.IUserPool;
 
   public readonly userPoolClient: cognito.IUserPoolClient;
 
+  public readonly postAuthTrigger: NodejsServiceFunction;
+
   constructor(scope: Construct, id: string) {
     super(scope, id);
+
+    this.postAuthTrigger = new NodejsServiceFunction(
+      this,
+      "PostAuthTrigger",
+      {
+        entry: path.join(__dirname, "../../../services/sessions/post-auth-trigger.js"),
+      }
+    );
 
     this.userPool = new cognito.UserPool(this, 'UserPool', {
       selfSignUpEnabled: false,
       autoVerify: {
-        email: true,
+        email: false,
       },
       signInAliases: {
         email: true,
@@ -30,6 +42,9 @@ export class ApplicationAuth extends Construct {
           required: false,
           mutable: true,
         },
+      },
+      lambdaTriggers: {
+        postAuthentication: this.postAuthTrigger,
       },
     });
 
