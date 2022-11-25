@@ -11,7 +11,7 @@
     },
     "group": {
       "type": "string",
-      "enum": ["admin", "contributor", "reader"]
+      "enum": ["admin", "manager", "employee"]
     }
   },
   "additionalProperties": false

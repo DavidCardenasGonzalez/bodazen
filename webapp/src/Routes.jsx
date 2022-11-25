@@ -13,11 +13,12 @@ import DocumentsList from './views/DocumentsList';
 import Profile from './views/Profile';
 import Detail from './views/Detail';
 import Users from './views/Users';
+import UserCreate from './views/UserCreate';
 import Employee from './views/Employees';
+import EmployeeCreate from './views/EmployeeCreate';
 import NotFound from './views/NotFound';
 import Upload from './views/Upload';
 import { UserProvider } from './UserContext';
-import CreateUser from './views/CreateUser';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -47,8 +48,9 @@ function Routes() {
                     <Route exact path="/" component={DocumentsList} />
                     <Route exact path="/profile" component={Profile} />
                     <Route exact path="/employees" component={Employee} />
+                    <Route exact path="/employee/create" component={EmployeeCreate} />
                     <Route exact path="/users" component={Users} />
-                    <Route exact path="/users/create" component={CreateUser} />
+                    <Route exact path="/users/create" component={UserCreate} />
                     <Route path="/document/:documentId" component={Detail} />
                     <Route exact path="/upload" component={Upload} />
                     <Route path="*" component={NotFound} />

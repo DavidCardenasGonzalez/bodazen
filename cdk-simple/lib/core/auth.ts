@@ -66,16 +66,16 @@ export class ApplicationAuth extends Construct {
       description: 'Admin users',
     });
 
-    new cognito.CfnUserPoolGroup(this, 'ContributorGroup', {
+    new cognito.CfnUserPoolGroup(this, 'ManagerrGroup', {
       userPoolId: this.userPool.userPoolId,
-      groupName: 'contributor',
+      groupName: 'manager',
       precedence: 5,
       description: 'Users who can manage documents but not users',
     });
 
-    new cognito.CfnUserPoolGroup(this, 'ReaderGroup', {
+    new cognito.CfnUserPoolGroup(this, 'EmployeeGroup', {
       userPoolId: this.userPool.userPoolId,
-      groupName: 'reader',
+      groupName: 'employee',
       precedence: 10,
       description: 'Users who can only read and comment',
     });

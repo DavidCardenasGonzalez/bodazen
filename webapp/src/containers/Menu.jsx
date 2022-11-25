@@ -1,16 +1,19 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
 import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import { Auth } from 'aws-amplify';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { useUser } from '../UserContext';
 
 const useStyles = makeStyles(() => ({
@@ -25,10 +28,13 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'column',
     width: '100%',
-    marginTop: 20,
+    marginTop: 50,
   },
   avatar: {
+    // border: '2px solid #b7d0de !important',
+    boxShadow: '2px 2px 5px #1c1b1b',
   },
   name: {
     color: '#b7d0de !important',
@@ -36,6 +42,16 @@ const useStyles = makeStyles(() => ({
     textAlign: 'center',
     margin: '0 15px',
     fontWeight: 700,
+    paddingTop: 30,
+  },
+  logoutButton: {
+    color: '#b7d0de !important',
+    fontSize: '11px !important',
+    textAlign: 'center',
+  },
+  divider: {
+    borderColor: '#b7d0de !important',
+    margin: '15px !important',
   },
 }));
 
@@ -43,11 +59,15 @@ function Menu(props) {
   // eslint-disable-next-line react/prop-types
   const { drawerWidth } = props;
   const window = undefined;
+  const history = useHistory();
   const classes = useStyles();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const { user } = useUser();
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+  const signOut = () => {
+    Auth.signOut().finally((window.location.href = '/'));
   };
 
   const drawer = (
@@ -61,22 +81,37 @@ function Menu(props) {
 
           // onClick={handleToggle}
         />
+        <div className={classes.name}>{user.name}</div>
+        <Button onClick={signOut} className={classes.logoutButton} variant="text">
+          Cerrar Sesión
+        </Button>
       </div>
-      <div className={classes.name}>
-        {user.name}
-      </div>
-      <Divider />
+      <Divider className={classes.divider} />
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon className={classes.menuIcon}>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              history.push('/users');
+            }}
+          >
+            <ListItemIcon className={classes.menuIcon}>
+              <SupervisorAccountIcon />
+            </ListItemIcon>
+            <ListItemText primary="Usuarios" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              history.push('/employees');
+            }}
+          >
+            <ListItemIcon className={classes.menuIcon}>
+              <Diversity3Icon />
+            </ListItemIcon>
+            <ListItemText primary="Empleados" />
+          </ListItemButton>
+        </ListItem>
       </List>
       <Divider />
     </div>

@@ -99,7 +99,7 @@ function UserBadge() {
                     <MenuItem onClick={onManageUsers}>Usuarios</MenuItem>
                     <MenuItem onClick={onEmployees}>Empleados</MenuItem>
                   </AuthGroupWrapper>
-                  <MenuItem onClick={signOut}>Logout</MenuItem>
+                  <MenuItem onClick={signOut}>Cerrar Sesión</MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>

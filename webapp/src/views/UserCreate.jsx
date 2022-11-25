@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CreateUser() {
+function UserCreate() {
   const classes = useStyles();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -56,7 +56,7 @@ function CreateUser() {
   const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
-    const groups = ['admin', 'contributor', 'reader'];
+    const groups = ['admin', 'manager', 'employee'];
     if (!name || name.length < 1) {
       setIsValid(false);
       return;
@@ -121,10 +121,28 @@ function CreateUser() {
 
   return (
     <Page title="Crear Usuario" breadcrumbs={getBreadcrumbs()}>
-      { isSuccessVisible
-      && <MuiAlert onClose={() => setIsSuccessVisible(false)} className={classes.alert} severity="success" elevation={6} variant="filled">User successfully created</MuiAlert> }
-      { isErrorVisible
-      && <MuiAlert onClose={() => setIsErrorVisible(false)} className={classes.alert} severity="error" elevation={6} variant="filled">Could not create user. Please try again later.</MuiAlert> }
+      {isSuccessVisible && (
+        <MuiAlert
+          onClose={() => setIsSuccessVisible(false)}
+          className={classes.alert}
+          severity="success"
+          elevation={6}
+          variant="filled"
+        >
+          User successfully created
+        </MuiAlert>
+      )}
+      {isErrorVisible && (
+        <MuiAlert
+          onClose={() => setIsErrorVisible(false)}
+          className={classes.alert}
+          severity="error"
+          elevation={6}
+          variant="filled"
+        >
+          Could not create user. Please try again later.
+        </MuiAlert>
+      )}
       <Grid container spacing={2} alignItems="stretch">
         <Grid item xs={12} sm={6} className={classes.container}>
           <Card className={classes.card}>
@@ -159,10 +177,27 @@ function CreateUser() {
             <CardHeader title="Group Membership" subheader="Determine the user's level of access" />
             <CardContent>
               <FormControl component="fieldset">
-                <RadioGroup aria-label="grpup" name="group1" value={group} onChange={(e) => setGroup(e.target.value)}>
-                  <FormControlLabel value="admin" control={<Radio color="primary" />} label="Admin" />
-                  <FormControlLabel value="contributor" control={<Radio color="primary" />} label="Contributor" />
-                  <FormControlLabel value="reader" control={<Radio color="primary" />} label="Reader" />
+                <RadioGroup
+                  aria-label="grpup"
+                  name="group1"
+                  value={group}
+                  onChange={(e) => setGroup(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="admin"
+                    control={<Radio color="primary" />}
+                    label="Admin"
+                  />
+                  <FormControlLabel
+                    value="contributor"
+                    control={<Radio color="primary" />}
+                    label="Contributor"
+                  />
+                  <FormControlLabel
+                    value="reader"
+                    control={<Radio color="primary" />}
+                    label="Reader"
+                  />
                 </RadioGroup>
               </FormControl>
             </CardContent>
@@ -186,4 +221,4 @@ function CreateUser() {
   );
 }
 
-export default CreateUser;
+export default UserCreate;

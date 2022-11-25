@@ -1,13 +1,4 @@
-/**
- * User Service
- *
- * This is a microservice that is used in the Pluralsight path on Serverless
- * architecture.
- *
- * @author David Tucker <david@mindmill.co>
- */
-
-import path from 'path';
+import path from "path";
 import {
   enforceGroupMembership,
   createRouter,
@@ -16,28 +7,32 @@ import {
   validateBodyJSONVariables,
   RouterType,
   Matcher,
-} from 'lambda-micro';
-import { AWSClients } from '../common';
+} from "lambda-micro";
+import { AWSClients, generateID } from "../common";
 
 // Get the User Pool ID
 const userPoolId = process.env.USER_POOL_ID;
 const cisp = AWSClients.cisp();
 const s3 = AWSClients.s3();
+const dynamoDB = AWSClients.dynamoDB();
+const tableName = process.env.DYNAMO_DB_TABLE;
 
 // These are JSON schemas that are used to validate requests to the service
 const schemas = {
-  idPathVariable: require('./schemas/idPathVariable.json'),
-  createEmployee: require('./schemas/createEmployee.json'),
+  idPathVariable: require("./schemas/idPathVariable.json"),
+  createEmployee: require("./schemas/createEmployee.json"),
 };
 
-const groups = ['admin', 'reader', 'contributor'];
+const groups = ["admin", "manager", "employee"];
 
 //------------------------------------------------------------------------
 // UTILITY FUNCTIONS
 //------------------------------------------------------------------------
 
 const doesOutputHaveUser = (output, user) => {
-  const foundUser = output.find(existingUser => existingUser.userId === user.userId);
+  const foundUser = output.find(
+    (existingUser) => existingUser.userId === user.userId
+  );
   if (foundUser) {
     return true;
   }
@@ -45,34 +40,34 @@ const doesOutputHaveUser = (output, user) => {
 };
 
 const getUserAttribute = (user, attrName, defaultVal) => {
-  const attrProperty = Object.prototype.hasOwnProperty.call(user, 'Attributes')
-    ? 'Attributes'
-    : 'UserAttributes';
-  const attr = user[attrProperty].find(a => a.Name === attrName);
+  const attrProperty = Object.prototype.hasOwnProperty.call(user, "Attributes")
+    ? "Attributes"
+    : "UserAttributes";
+  const attr = user[attrProperty].find((a) => a.Name === attrName);
   if (!attr) {
     return defaultVal;
   }
   return attr.Value;
 };
 
-const getSignedURL = async picture => {
+const getSignedURL = async (picture) => {
   const urlExpirySeconds = 60 * 60 * 24; // One day
   const params = {
     Bucket: process.env.ASSET_BUCKET,
     Key: picture,
     Expires: urlExpirySeconds,
   };
-  const signedURL = await s3.getSignedUrlPromise('getObject', params);
+  const signedURL = await s3.getSignedUrlPromise("getObject", params);
   return signedURL;
 };
 
-const transformUser = async user => {
+const transformUser = async (user) => {
   const output = {};
   output.userId = user.Username;
   output.dateCreated = user.UserCreateDate;
-  output.name = getUserAttribute(user, 'name', '');
-  output.email = getUserAttribute(user, 'email', '');
-  output.picture = getUserAttribute(user, 'picture', '');
+  output.name = getUserAttribute(user, "name", "");
+  output.email = getUserAttribute(user, "email", "");
+  output.picture = getUserAttribute(user, "picture", "");
   if (output.picture) {
     output.pictureURL = await getSignedURL(output.picture);
   }
@@ -89,26 +84,29 @@ const getUsersInGroup = async (groupName, nextToken) => {
     params.NextToken = nextToken;
   }
   const result = await cisp.listUsersInGroup(params).promise();
-  let users = result.Users;
+  let employees = result.Users;
   if (result.NextToken) {
-    users = [...users, await getUsersInGroup(groupName, result.NextToken)];
+    employees = [
+      ...employees,
+      await getUsersInGroup(groupName, result.NextToken),
+    ];
   }
-  return users;
+  return employees;
 };
 
 const getUsersInAllGroups = async () => {
   const output = [];
   await Promise.all(
-    groups.map(async group => {
-      const users = await getUsersInGroup(group);
-      users.map(async user => {
+    groups.map(async (group) => {
+      const employees = await getUsersInGroup(group);
+      employees.map(async (user) => {
         const transformedUser = await transformUser(user);
         transformedUser.group = group;
         if (!doesOutputHaveUser(output, transformedUser)) {
           output.push(transformedUser);
         }
       });
-    }),
+    })
   );
   return output;
 };
@@ -128,9 +126,20 @@ const uploadPhotoToS3 = async (id, formFile) => {
 //------------------------------------------------------------------------
 
 // Get all documents
-const getAllUsers = async (request, response) => {
-  const users = await getUsersInAllGroups();
-  return response.output({ users }, 200);
+const getAllEmployees = async (request, response) => {
+  const params = {
+    TableName: tableName,
+    IndexName: "GSI1",
+    KeyConditionExpression: "#employee_status = :status ",
+    ExpressionAttributeValues: {
+      ":status": "active",
+    },
+    ExpressionAttributeNames: {
+      "#employee_status": "status",
+    },
+  };
+  const results = await dynamoDB.query(params).promise();
+  return response.output(results.Items, 200);
 };
 
 const getCurrentUser = async (request, response) => {
@@ -158,7 +167,7 @@ const updateCurrentUser = async (request, response) => {
       Username: userId,
     };
     const rawUser = await cisp.adminGetUser(userParams).promise();
-    const photoKey = getUserAttribute(rawUser, 'picture');
+    const photoKey = getUserAttribute(rawUser, "picture");
     // Delete file
     if (photoKey) {
       const deleteParams = {
@@ -169,7 +178,7 @@ const updateCurrentUser = async (request, response) => {
     }
     // Delete attribute
     const attributeParams = {
-      UserAttributeNames: ['picture'],
+      UserAttributeNames: ["picture"],
       UserPoolId: userPoolId,
       Username: userId,
     };
@@ -190,14 +199,14 @@ const updateCurrentUser = async (request, response) => {
       Username: userId,
       UserAttributes: [
         {
-          Name: 'name',
+          Name: "name",
           Value: fields.name,
         },
       ],
     };
     if (formFile) {
       params.UserAttributes.push({
-        Name: 'picture',
+        Name: "picture",
         Value: `profile/${userId}${path.extname(formFile.fileName)}`,
       });
     }
@@ -209,15 +218,15 @@ const updateCurrentUser = async (request, response) => {
 };
 
 const getAllProfiles = async (request, response) => {
-  const users = await getUsersInAllGroups();
-  const output = users.map(user => {
+  const employees = await getUsersInAllGroups();
+  const output = employees.map((user) => {
     return {
       userId: user.userId,
       name: user.name,
       pictureURL: user.pictureURL,
     };
   });
-  return response.output({ users: output }, 200);
+  return response.output({ employees: output }, 200);
 };
 
 const deleteUser = async (request, response) => {
@@ -227,31 +236,30 @@ const deleteUser = async (request, response) => {
     Username: userId,
   };
   await cisp.adminDeleteUser(params).promise();
-  return response.output('User Deleted', 200);
+  return response.output("User Deleted", 200);
 };
 
-const createUser = async (request, response) => {
+const createEmployee = async (request, response) => {
   const fields = JSON.parse(request.event.body);
   // Create User
   const createUserParams = {
     UserPoolId: userPoolId,
     Username: fields.email,
+    TemporaryPassword: fields.password,
     UserAttributes: [
       {
-        Name: 'name',
+        Name: "name",
         Value: fields.name,
       },
       {
-        Name: 'email',
+        Name: "email",
         Value: fields.email,
       },
       {
-        Name: 'email_verified',
-        Value: 'true',
+        Name: "email_verified",
+        Value: "true",
       },
     ],
-    ForceAliasCreation: false,
-    DesiredDeliveryMediums: ['EMAIL'],
   };
   const results = await cisp.adminCreateUser(createUserParams).promise();
 
@@ -259,10 +267,29 @@ const createUser = async (request, response) => {
   const addToGroupParams = {
     UserPoolId: userPoolId,
     Username: results.User.Username,
-    GroupName: fields.group,
+    GroupName: "employee",
   };
-
+  console.log(results);
   await cisp.adminAddUserToGroup(addToGroupParams).promise();
+  const employeeId = generateID();
+  const item = {
+    PK: employeeId,
+    CognitoId: employeeId,
+    name: fields.name,
+    lastname: fields.lastname,
+    email: fields.email,
+    telephone: fields.telephone,
+    status: "active",
+    date: new Date().toISOString(),
+    _metadata: request.event.requestContext,
+  };
+  const params = {
+    TableName: tableName,
+    Item: item,
+    ReturnValues: "NONE",
+  };
+  await dynamoDB.put(params).promise();
+
   return response.output({}, 200);
 };
 
@@ -285,22 +312,23 @@ const createUser = async (request, response) => {
 
 */
 const router = createRouter(RouterType.HTTP_API_V2);
-router.add(Matcher.HttpApiV2('GET', '/users/'), enforceGroupMembership('admin'), getAllUsers);
 router.add(
-  Matcher.HttpApiV2('POST', '/users/'),
-  enforceGroupMembership('admin'),
-  validateBodyJSONVariables(schemas.createUser),
-  createUser,
+  Matcher.HttpApiV2("GET", "/employees/"),
+  enforceGroupMembership(["admin", "manager"]),
+  getAllEmployees
 );
-router.add(Matcher.HttpApiV2('GET', '/users/profile'), getCurrentUser);
-router.add(Matcher.HttpApiV2('PATCH', '/users/profile'), parseMultipartFormData, updateCurrentUser);
-router.add(Matcher.HttpApiV2('GET', '/users/profiles'), getAllProfiles);
 router.add(
-  Matcher.HttpApiV2('DELETE', '/users(/:id)'),
-  enforceGroupMembership('admin'),
-  validatePathVariables(schemas.idPathVariable),
-  deleteUser,
+  Matcher.HttpApiV2("POST", "/employees/"),
+  enforceGroupMembership(["admin", "manager"]),
+  validateBodyJSONVariables(schemas.createEmployee),
+  createEmployee
 );
+// router.add(
+//   Matcher.HttpApiV2('DELETE', '/employees(/:id)'),
+//   enforceGroupMembership('admin'),
+//   validatePathVariables(schemas.idPathVariable),
+//   deleteUser,
+// );
 
 // Lambda Handler
 exports.handler = async (event, context) => {

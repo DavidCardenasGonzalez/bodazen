@@ -3,7 +3,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { Grid, Button } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import Page from '../containers/Page';
-import UsersTable from '../components/UsersTable';
+import EmployeeTable from '../tables/EmployeeTable';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,7 +50,7 @@ function Employee() {
       breadcrumbs={getBreadcrumbs()}
       actionItems={getActionButtons()}
     >
-      <UsersTable className={classes.datagrid} />
+      <EmployeeTable className={classes.datagrid} />
     </Page>
   );
 }

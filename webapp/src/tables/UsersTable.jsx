@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import MUIDataTable from 'mui-datatables';
 import { makeStyles } from '@material-ui/core/styles';
 import { Chip } from '@material-ui/core';
-import UserView from './UserView';
+import UserView from '../components/UserView';
 import { deleteUser, getAllUsers } from '../services';
-import LoadingView from './LoadingView';
+import LoadingView from '../components/LoadingView';
 import { getFormattedDate } from '../util';
 
 const useStyles = makeStyles(() => ({

@@ -13,6 +13,7 @@ import { HttpUserPoolAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-al
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 
 interface ApplicationAPIProps {
+  employeeService: lambda.IFunction;
   commentsService: lambda.IFunction;
   documentsService: lambda.IFunction;
   usersService: lambda.IFunction;
@@ -93,6 +94,19 @@ export class ApplicationAPI extends Construct {
       path: `/users/{proxy+}`,
       methods: serviceMethods,
       integration: usersServiceIntegration,
+      authorizer,
+    });
+
+
+    // Users Service ------------------------------------------------------
+
+    const employeeServiceIntegration = new HttpLambdaIntegration('EmployeesIntegration',
+      props.employeeService);
+
+    this.httpApi.addRoutes({
+      path: `/employees/{proxy+}`,
+      methods: serviceMethods,
+      integration: employeeServiceIntegration,
       authorizer,
     });
 

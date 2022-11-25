@@ -6,9 +6,9 @@ import { Helmet } from 'react-helmet-async';
 import Grid from '@material-ui/core/Grid';
 import { NavLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
+// import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
-import Header from '../views/Header';
+import Header from './Header';
 import Menu from './Menu';
 
 const drawerWidth = 240;
@@ -29,7 +29,7 @@ function Page({
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
+      {/* <CssBaseline /> */}
       <Header drawerWidth={drawerWidth} />
       <Menu drawerWidth={drawerWidth} />
 

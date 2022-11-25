@@ -178,4 +178,25 @@ export const reportCommentForModeration = async (id) => {
   await client.post(`${SERVICES_HOST}/moderate/`, body);
 };
 
+// Employees ----------------------------------------
+
+export const createEmployeee = async (body) => {
+  if (!client) {
+    await createAPIClient();
+  }
+  // const body = { email, name, group };
+  console.log(`Body: ${JSON.stringify(body)}`);
+  const results = await client.post(`${SERVICES_HOST}/employees/`, body);
+  console.log(`Results: ${JSON.stringify(results)}`);
+};
+
+export const getAllEmployees = async () => {
+  if (!client) {
+    await createAPIClient();
+  }
+  const results = await client.get(`${SERVICES_HOST}/employees/`);
+  console.log(`Results: ${JSON.stringify(results)}`);
+  return results.data;
+};
+
 /* eslint-enable no-console */

@@ -14,6 +14,7 @@ import { NodejsServiceFunction } from "../constructs/lambda";
 interface AppServicesProps {
   documentsTable: dynamodb.ITable;
   sessionsTable: dynamodb.ITable;
+  employeeTable: dynamodb.ITable;
   uploadBucket: s3.IBucket;
   assetBucket: s3.IBucket;
   userPool: cognito.IUserPool;
@@ -28,6 +29,8 @@ export class AppServices extends Construct {
   public readonly notificationsService: ln.NodejsFunction;
 
   public readonly usersService: ln.NodejsFunction;
+
+  public readonly employeeService: ln.NodejsFunction;
 
   constructor(scope: Construct, id: string, props: AppServicesProps) {
     super(scope, id);
@@ -143,6 +146,31 @@ export class AppServices extends Construct {
     props.assetBucket.grantReadWrite(this.usersService);
 
     this.usersService.addToRolePolicy(
+      new iam.PolicyStatement({
+        resources: [props.userPool.userPoolArn],
+        actions: ["cognito-idp:*"],
+      })
+    );
+
+     // Employee Service ------------------------------------------------------
+
+     this.employeeService = new NodejsServiceFunction(this, "EmployeeServiceLambda", {
+      entry: path.join(__dirname, "../../../services/employees/index.js"),
+    });
+
+    props.employeeTable.grantReadWriteData(this.employeeService);
+    this.employeeService.addEnvironment("USER_POOL_ID", props.userPool.userPoolId);
+    this.employeeService.addEnvironment(
+      "ASSET_BUCKET",
+      props.assetBucket.bucketName
+    );
+    this.employeeService.addEnvironment(
+      "DYNAMO_DB_TABLE",
+      props.employeeTable.tableName
+    );
+    props.assetBucket.grantReadWrite(this.employeeService);
+
+    this.employeeService.addToRolePolicy(
       new iam.PolicyStatement({
         resources: [props.userPool.userPoolArn],
         actions: ["cognito-idp:*"],

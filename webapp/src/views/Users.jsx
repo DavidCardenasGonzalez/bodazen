@@ -3,7 +3,7 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { Grid, Button } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import Page from '../containers/Page';
-import UsersTable from '../components/UsersTable';
+import UsersTable from '../tables/UsersTable';
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -25,6 +25,7 @@ export class BodazenInfrastructureMain extends Stack {
     this.database = new AppDatabase(this, 'Database');
 
     const services = new AppServices(this, 'Services', {
+      employeeTable: this.database.employeeTable,
       documentsTable: this.database.documentsTable,
       sessionsTable: this.database.sessionsTable,
       uploadBucket: this.storage.uploadBucket,
@@ -35,6 +36,7 @@ export class BodazenInfrastructureMain extends Stack {
     services.node.addDependency(this.storage);
 
     const api = new ApplicationAPI(this, 'API', {
+      employeeService: services.employeeService,
       commentsService: services.commentsService,
       documentsService: services.documentsService,
       usersService: services.usersService,

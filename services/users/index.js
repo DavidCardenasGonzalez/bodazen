@@ -30,7 +30,7 @@ const schemas = {
   createUser: require('./schemas/createUser.json'),
 };
 
-const groups = ['admin', 'reader', 'contributor'];
+const groups = ["admin", "manager", "employee"];
 
 //------------------------------------------------------------------------
 // UTILITY FUNCTIONS
