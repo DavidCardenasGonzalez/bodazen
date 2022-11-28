@@ -1,4 +1,6 @@
 import path from "path";
+import PizZip from "pizzip";
+import Docxtemplater from "docxtemplater";
 import {
   enforceGroupMembership,
   createRouter,
@@ -142,6 +144,64 @@ const getAllEmployees = async (request, response) => {
   return response.output(results.Items, 200);
 };
 
+const getEmployee = async (request, response) => {
+  const employeeId = request.pathVariables.id;
+  console.log(employeeId);
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression: "PK = :key",
+    ExpressionAttributeValues: {
+      ":key": employeeId,
+    },
+  };
+  const results = await dynamoDB.query(params).promise();
+  const employee = results.Items[0];
+  return response.output(employee, 200);
+};
+
+const getContract = async (request, response) => {
+  const employeeId = request.pathVariables.id;
+  const paramsEmployee = {
+    TableName: tableName,
+    KeyConditionExpression: "PK = :key",
+    ExpressionAttributeValues: {
+      ":key": employeeId,
+    },
+  };
+  const results = await dynamoDB.query(paramsEmployee).promise();
+  const employee = results.Items[0];
+
+  const bucket = process.env.ASSET_BUCKET;
+  const key = decodeURIComponent("contrato.docx");
+  const params = {
+    Bucket: bucket,
+    Key: key,
+  };
+  try {
+    const format = await s3.getObject(params).promise();
+    const zip = new PizZip(format.Body);
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+    });
+
+    doc.render({
+      nombre: employee.name,
+      apellido: employee.lastname,
+      correo: employee.email,
+    });
+
+    const buf = doc.getZip().generate({
+      type: "nodebuffer",
+      compression: "DEFLATE",
+    });
+    return response.output(buf, 200);
+  } catch (err) {
+    console.log(err);
+    return response.output({}, 400);
+  }
+};
+
 const getCurrentUser = async (request, response) => {
   const userId = request.event.requestContext.authorizer.jwt.claims.username;
   const params = {
@@ -217,27 +277,27 @@ const updateCurrentUser = async (request, response) => {
   return getCurrentUser(request, response);
 };
 
-const getAllProfiles = async (request, response) => {
-  const employees = await getUsersInAllGroups();
-  const output = employees.map((user) => {
-    return {
-      userId: user.userId,
-      name: user.name,
-      pictureURL: user.pictureURL,
-    };
-  });
-  return response.output({ employees: output }, 200);
-};
+// const getAllProfiles = async (request, response) => {
+//   const employees = await getUsersInAllGroups();
+//   const output = employees.map((user) => {
+//     return {
+//       userId: user.userId,
+//       name: user.name,
+//       pictureURL: user.pictureURL,
+//     };
+//   });
+//   return response.output({ employees: output }, 200);
+// };
 
-const deleteUser = async (request, response) => {
-  const userId = request.pathVariables.id;
-  const params = {
-    UserPoolId: userPoolId,
-    Username: userId,
-  };
-  await cisp.adminDeleteUser(params).promise();
-  return response.output("User Deleted", 200);
-};
+// const deleteUser = async (request, response) => {
+//   const userId = request.pathVariables.id;
+//   const params = {
+//     UserPoolId: userPoolId,
+//     Username: userId,
+//   };
+//   await cisp.adminDeleteUser(params).promise();
+//   return response.output("User Deleted", 200);
+// };
 
 const createEmployee = async (request, response) => {
   const fields = JSON.parse(request.event.body);
@@ -297,20 +357,6 @@ const createEmployee = async (request, response) => {
 // LAMBDA ROUTER
 //------------------------------------------------------------------------
 
-/*
-
-  This uses a custom Lambda container that I have created that is very 
-  similar to what I use for my projects in production (with the only
-  exception being that it is JavaScript and not TypeScript). I have
-  released this as an npm package, lambda-micro, and you can view it
-  at the link below.
-
-  This is similar to what you can do with something like Express, but it 
-  doesn't have the weight of using Express fully.
-
-  https://github.com/davidtucker/lambda-micro
-
-*/
 const router = createRouter(RouterType.HTTP_API_V2);
 router.add(
   Matcher.HttpApiV2("GET", "/employees/"),
@@ -323,6 +369,20 @@ router.add(
   validateBodyJSONVariables(schemas.createEmployee),
   createEmployee
 );
+router.add(
+  Matcher.HttpApiV2("GET", "/employees(/:id)"),
+  enforceGroupMembership("admin", "manager"),
+  validatePathVariables(schemas.idPathVariable),
+  getEmployee
+);
+
+router.add(
+  Matcher.HttpApiV2("GET", "/employees/contract(/:id)"),
+  enforceGroupMembership("admin", "manager"),
+  validatePathVariables(schemas.idPathVariable),
+  getContract
+);
+
 // router.add(
 //   Matcher.HttpApiV2('DELETE', '/employees(/:id)'),
 //   enforceGroupMembership('admin'),

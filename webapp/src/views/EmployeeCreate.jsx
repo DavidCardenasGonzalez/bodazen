@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { useEffect, useState } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, TextField, Card, Avatar, CardContent, Button } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -9,7 +10,7 @@ import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
 import Page from '../containers/Page';
-import { createEmployeee } from '../services';
+import { createEmployeee, getEmployees, createContract } from '../services';
 import { useUser } from '../UserContext';
 
 const useStyles = makeStyles((theme) => ({
@@ -46,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function EmployeeCreate() {
+  const { employeeId } = useParams();
   const [activeStep, setActiveStep] = React.useState(0);
   const [completed, setCompleted] = React.useState({});
   const classes = useStyles();
@@ -103,6 +105,17 @@ function EmployeeCreate() {
     setisValidPassword(true);
   }, [password, confirmPassword]);
 
+  useEffect(() => {
+    (async () => {
+      const data = await getEmployees(employeeId);
+      console.log(data);
+      setName(data.name);
+      setLastname(data.lastname);
+      setEmail(data.email);
+      setTelephone(data.telephone);
+    })();
+  }, [employeeId]);
+
   const createEmployee = async () => {
     setSubmitting(true);
     try {
@@ -116,10 +129,28 @@ function EmployeeCreate() {
     setSubmitting(false);
     setIsSuccessVisible(true);
     setIsErrorVisible(false);
-    // setName('');
-    // setEmail('');
-    // setGroup('reader');
-    // await updateAllUserProfiles();
+  };
+
+  const createContractF = async () => {
+    setSubmitting(true);
+    try {
+      const file = await createContract(employeeId);
+      const data = Uint8Array.from(file.data);
+      const content = new Blob([data.buffer], { type: file.contentType });
+
+      const encodedUri = window.URL.createObjectURL(content);
+      const link = document.createElement('a');
+
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', "contrato.docx");
+      link.click();
+      
+    } catch (err) {
+      console.log(err);
+      setSubmitting(false);
+      return;
+    }
+    setSubmitting(false);
   };
 
   const handleStep = (step) => () => {
@@ -344,6 +375,15 @@ function EmployeeCreate() {
             onClick={createEmployee}
           >
             Crear Empleado
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            disabled={!isValid}
+            startIcon={getButtonIcon()}
+            onClick={createContractF}
+          >
+            Crear Contrato
           </Button>
         </Grid>
       </Grid>

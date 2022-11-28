@@ -4,6 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "lambda-micro": "^1.0.0"
+    "docxtemplater": "^3.32.4",
+    "lambda-micro": "^1.0.0",
+    "pizzip": "^3.1.3"
   }
 }

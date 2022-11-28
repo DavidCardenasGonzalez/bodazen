@@ -184,8 +184,6 @@ export const createEmployeee = async (body) => {
   if (!client) {
     await createAPIClient();
   }
-  // const body = { email, name, group };
-  console.log(`Body: ${JSON.stringify(body)}`);
   const results = await client.post(`${SERVICES_HOST}/employees/`, body);
   console.log(`Results: ${JSON.stringify(results)}`);
 };
@@ -195,7 +193,22 @@ export const getAllEmployees = async () => {
     await createAPIClient();
   }
   const results = await client.get(`${SERVICES_HOST}/employees/`);
-  console.log(`Results: ${JSON.stringify(results)}`);
+  return results.data;
+};
+
+export const getEmployees = async (id) => {
+  if (!client) {
+    await createAPIClient();
+  }
+  const results = await client.get(`${SERVICES_HOST}/employees/${id}`);
+  return results.data;
+};
+
+export const createContract = async (id) => {
+  if (!client) {
+    await createAPIClient();
+  }
+  const results = await client.get(`${SERVICES_HOST}/employees/contract/${id}`);
   return results.data;
 };
 

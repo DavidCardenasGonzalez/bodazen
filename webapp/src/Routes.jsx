@@ -49,6 +49,7 @@ function Routes() {
                     <Route exact path="/profile" component={Profile} />
                     <Route exact path="/employees" component={Employee} />
                     <Route exact path="/employee/create" component={EmployeeCreate} />
+                    <Route path="/employee/:employeeId" component={EmployeeCreate} />
                     <Route exact path="/users" component={Users} />
                     <Route exact path="/users/create" component={UserCreate} />
                     <Route path="/document/:documentId" component={Detail} />

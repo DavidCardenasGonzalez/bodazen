@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import MUIDataTable from 'mui-datatables';
 import { makeStyles } from '@material-ui/core/styles';
 import { Chip } from '@material-ui/core';
-import FileName from './DataGrid/FileName';
-import UserView from './UserView';
+import FileName from '../components/DataGrid/FileName';
+import UserView from '../components/UserView';
 import { getAllDocuments, deleteDocument } from '../services';
 import { getReadableFileSize, getFormattedDate } from '../util';
-import LoadingView from './LoadingView';
+import LoadingView from '../components/LoadingView';
 
 const useStyles = makeStyles(() => ({
   root: {

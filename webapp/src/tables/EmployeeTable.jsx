@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MUIDataTable from 'mui-datatables';
 import { makeStyles } from '@material-ui/core/styles';
-// import { Chip } from '@material-ui/core';
-// import UserView from '../components/UserView';
+import LinkCell from '../components/DataGrid/LinkCell';
 import { deleteUser, getAllEmployees } from '../services';
 import LoadingView from '../components/LoadingView';
 import { getFormattedDate } from '../util';
@@ -35,12 +34,13 @@ export default function UsersTable() {
         filterType: 'textField',
         customFilterListOptions: { render: (v) => `Nombre: ${v}` },
         sort: true,
-        // customBodyRenderLite: function UserViewCell(dataIndex) {
-        //   const val = tableData[dataIndex];
-        //   return (
-        //     <UserView userId={val.userId} />
-        //   );
-        // },
+        customBodyRenderLite: function UserViewCell(dataIndex) {
+          const val = tableData[dataIndex];
+          const url = `/employee/${val.PK}`;
+          return (
+            <LinkCell data={val.name} url={url} />
+          );
+        },
       },
     },
     {
@@ -51,12 +51,6 @@ export default function UsersTable() {
         filterType: 'textField',
         customFilterListOptions: { render: (v) => `Apellido: ${v}` },
         sort: true,
-        // customBodyRenderLite: function UserViewCell(dataIndex) {
-        //   const val = tableData[dataIndex];
-        //   return (
-        //     <UserView userId={val.userId} />
-        //   );
-        // },
       },
     },
     {
