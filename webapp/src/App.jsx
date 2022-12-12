@@ -1,10 +1,10 @@
-import React from 'react';
-import Amplify from 'aws-amplify';
+/* eslint-disable no-unused-vars */
+import React, { useEffect } from 'react';
+import { Amplify, Hub, Auth } from 'aws-amplify';
 import './App.css';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { AmplifyAuthenticator, AmplifySignIn } from '@aws-amplify/ui-react';
-import { AuthState, onAuthUIStateChange } from '@aws-amplify/ui-components';
 import Routes from './Routes';
+import SignInSide from './LoginConfig';
 
 Amplify.configure(window.appConfig);
 
@@ -12,30 +12,36 @@ const helmetContext = {};
 
 function App() {
   const [authState, setAuthState] = React.useState();
-  const [user, setUser] = React.useState();
+  const [authUser, setAuthUser] = React.useState();
 
-  React.useEffect(() => onAuthUIStateChange((nextAuthState, authData) => {
-    setAuthState(nextAuthState);
-    setUser(authData);
-  }), []);
+  const setUserPayload = (payload) => {
+    setAuthState(payload.event);
+    setAuthUser(payload.data);
+  };
+
+  useEffect(() => {
+    (async () => {
+      const user = await Auth.currentAuthenticatedUser();
+      if (user) {
+        setAuthState('signIn');
+        setAuthUser(user);
+      }
+    })();
+    Hub.listen('auth', ({ payload }) => {
+      setUserPayload(payload);
+    });
+  }, []);
 
   return (
     <HelmetProvider context={helmetContext}>
       <Helmet
-        titleTemplate="%s | Globomantics"
-        defaultTitle="Document Management System"
+        titleTemplate="%s | OlafCardiMarco"
+        defaultTitle="Sistema adminstración de Usuarios"
       />
-      { authState === AuthState.SignedIn && user ? (
+      {authState === 'signIn' && authUser ? (
         <Routes />
       ) : (
-        <AmplifyAuthenticator>
-          <AmplifySignIn
-            slot="sign-in"
-            usernameAlias="email"
-            headerText="Document Management System"
-            hideSignUp
-          />
-        </AmplifyAuthenticator>
+        <SignInSide setAuthState={setAuthState} setAuthUser={setAuthUser} />
       )}
     </HelmetProvider>
   );

@@ -1,13 +1,8 @@
 import React from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from 'react-router-dom';
-import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
 import Footer from './views/Footer';
-import theme from './theme';
 import './App.css';
 import DocumentsList from './views/DocumentsList';
 import Profile from './views/Profile';
@@ -37,33 +32,31 @@ function Routes() {
   const classes = useStyles();
 
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <Route
-          render={() => (
-            <UserProvider>
-              <Paper className={classes.root}>
-                <div className={classes.content}>
-                  <Switch>
-                    <Route exact path="/" component={DocumentsList} />
-                    <Route exact path="/profile" component={Profile} />
-                    <Route exact path="/employees" component={Employee} />
-                    <Route exact path="/employee/create" component={EmployeeCreate} />
-                    <Route path="/employee/:employeeId" component={EmployeeCreate} />
-                    <Route exact path="/users" component={Users} />
-                    <Route exact path="/users/create" component={UserCreate} />
-                    <Route path="/document/:documentId" component={Detail} />
-                    <Route exact path="/upload" component={Upload} />
-                    <Route path="*" component={NotFound} />
-                  </Switch>
-                </div>
-                <Footer />
-              </Paper>
-            </UserProvider>
-          )}
-        />
-      </Router>
-    </ThemeProvider>
+    <Router>
+      <Route
+        render={() => (
+          <UserProvider>
+            <Paper className={classes.root}>
+              <div className={classes.content}>
+                <Switch>
+                  <Route exact path="/" component={DocumentsList} />
+                  <Route exact path="/profile" component={Profile} />
+                  <Route exact path="/employees" component={Employee} />
+                  <Route exact path="/employee/create" component={EmployeeCreate} />
+                  <Route path="/employee/:employeeId" component={EmployeeCreate} />
+                  <Route exact path="/users" component={Users} />
+                  <Route exact path="/users/create" component={UserCreate} />
+                  <Route path="/document/:documentId" component={Detail} />
+                  <Route exact path="/upload" component={Upload} />
+                  <Route path="*" component={NotFound} />
+                </Switch>
+              </div>
+              <Footer />
+            </Paper>
+          </UserProvider>
+        )}
+      />
+    </Router>
   );
 }
 

@@ -1,6 +1,13 @@
 import React from 'react';
 import {
-  Grid, Popper, Avatar, Grow, ClickAwayListener, Paper, MenuList, MenuItem,
+  Grid,
+  Popper,
+  Avatar,
+  Grow,
+  ClickAwayListener,
+  Paper,
+  MenuList,
+  MenuItem,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
@@ -9,8 +16,7 @@ import AuthGroupWrapper from './AuthGroupWrapper';
 import { useUser } from '../UserContext';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-  },
+  root: {},
   small: {
     width: theme.spacing(5),
     height: theme.spacing(5),
@@ -59,9 +65,12 @@ function UserBadge() {
     }
   };
 
-  const signOut = () => {
-    Auth.signOut()
-      .finally(window.location.href = '/');
+  const signOut = async () => {
+    try {
+      await Auth.signOut();
+    } catch (error) {
+      console.log('error signing out: ', error);
+    }
   };
 
   // return focus to the button when we transitioned from !open -> open
@@ -85,12 +94,16 @@ function UserBadge() {
           />
         </Grid>
       </Grid>
-      <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal placement="bottom-end">
+      <Popper
+        open={open}
+        anchorEl={anchorRef.current}
+        role={undefined}
+        transition
+        disablePortal
+        placement="bottom-end"
+      >
         {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{ transformOrigin: placement === 'left-start' }}
-          >
+          <Grow {...TransitionProps} style={{ transformOrigin: placement === 'left-start' }}>
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>

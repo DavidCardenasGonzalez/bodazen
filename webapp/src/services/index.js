@@ -11,7 +11,6 @@ const getAuthHeader = (session) => `Bearer ${session.getAccessToken().getJwtToke
 
 // Handle token refreshing
 const createAPIClient = async () => {
-  console.log('Creating API Client');
   const session = await Auth.currentSession();
   client = axios.create({
     headers: {
@@ -44,7 +43,6 @@ export const getDocument = async (id) => {
     await createAPIClient();
   }
   const { data } = await client.get(`${SERVICES_HOST}/documents/${id}`);
-  console.log(`Data: ${JSON.stringify(data)}`);
   return data;
 };
 
@@ -63,8 +61,7 @@ export const uploadDocument = async (name, tags, file) => {
   formData.append('name', name);
   formData.append('tags', tags.join(','));
   formData.append('file', file);
-  const result = await client.post(`${SERVICES_HOST}/documents/`, formData);
-  console.log(`Result from Upload: ${JSON.stringify(result)}`);
+  await client.post(`${SERVICES_HOST}/documents/`, formData);
 };
 
 // Users
@@ -76,7 +73,6 @@ export const getAllUsers = async () => {
     await createAPIClient();
   }
   const results = await client.get(`${SERVICES_HOST}/users/`);
-  console.log(`Results: ${JSON.stringify(results)}`);
   return results.data.users;
 };
 
@@ -85,9 +81,7 @@ export const createNewUser = async (email, name, group) => {
     await createAPIClient();
   }
   const body = { email, name, group };
-  console.log(`Body: ${JSON.stringify(body)}`);
-  const results = await client.post(`${SERVICES_HOST}/users/`, body);
-  console.log(`Results: ${JSON.stringify(results)}`);
+  await client.post(`${SERVICES_HOST}/users/`, body);
 };
 
 export const deleteUser = async (id) => {
@@ -102,14 +96,12 @@ export const getAllUserProfiles = async () => {
     await createAPIClient();
   }
   const results = await client.get(`${SERVICES_HOST}/users/profiles`);
-  console.log(`Results: ${JSON.stringify(results)}`);
   return results.data.users;
 };
 
 export const getProfileData = async (userId, forceRefresh = false) => {
   if (!userProfileData || forceRefresh) {
     userProfileData = await getAllUserProfiles();
-    console.log(`User Profile Data: ${JSON.stringify(userProfileData)}`);
   }
   const user = userProfileData.find((u) => u.userId === userId);
   return user;
@@ -120,7 +112,6 @@ export const getCurrentUserProfile = async () => {
     await createAPIClient();
   }
   const results = await client.get(`${SERVICES_HOST}/users/profile`);
-  console.log(`Results: ${JSON.stringify(results)}`);
   return results.data.user;
 };
 
@@ -139,7 +130,6 @@ export const updateCurrentUserProfile = async (name, shouldDeletePicture, pictur
     formData.append('picture', picture);
   }
   const results = await client.patch(`${SERVICES_HOST}/users/profile`, formData);
-  console.log(`Results: ${JSON.stringify(results)}`);
   return results.data.user;
 };
 
@@ -155,8 +145,7 @@ export const createComment = async (id, content) => {
   const body = {
     Comment: content,
   };
-  const results = await client.post(`${SERVICES_HOST}/comments/${id}`, body);
-  console.log(`Results: ${JSON.stringify(results)}`);
+  await client.post(`${SERVICES_HOST}/comments/${id}`, body);
 };
 
 export const getCommentsForDocument = async (id) => {
@@ -184,8 +173,7 @@ export const createEmployeee = async (body) => {
   if (!client) {
     await createAPIClient();
   }
-  const results = await client.post(`${SERVICES_HOST}/employees/`, body);
-  console.log(`Results: ${JSON.stringify(results)}`);
+  await client.post(`${SERVICES_HOST}/employees/`, body);
 };
 
 export const getAllEmployees = async () => {

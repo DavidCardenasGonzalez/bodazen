@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Grid, TextField, Card, Avatar, CardContent, Button } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
@@ -74,7 +74,7 @@ function EmployeeCreate() {
       setIsValid(false);
       return;
     }
-    if (!lastname || email.lastname < 1) {
+    if (!lastname || lastname.lastname < 1) {
       setIsValid(false);
       return;
     }

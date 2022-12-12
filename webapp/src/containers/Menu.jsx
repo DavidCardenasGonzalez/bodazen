@@ -22,7 +22,8 @@ const useStyles = makeStyles(() => ({
     color: 'white',
   },
   menuIcon: {
-    color: '#b7d0de !important',
+    color: '#b7d0de',
+    marginLeft: 20,
   },
   avatarContainer: {
     display: 'flex',
@@ -33,11 +34,12 @@ const useStyles = makeStyles(() => ({
     marginTop: 50,
   },
   avatar: {
-    // border: '2px solid #b7d0de !important',
     boxShadow: '2px 2px 5px #1c1b1b',
+    width: 130,
+    height: 130,
   },
   name: {
-    color: '#b7d0de !important',
+    color: '#b7d0de',
     fontSize: 16,
     textAlign: 'center',
     margin: '0 15px',
@@ -45,13 +47,13 @@ const useStyles = makeStyles(() => ({
     paddingTop: 30,
   },
   logoutButton: {
-    color: '#b7d0de !important',
-    fontSize: '11px !important',
+    color: '#b7d0de',
+    fontSize: '11px',
     textAlign: 'center',
   },
   divider: {
-    borderColor: '#b7d0de !important',
-    margin: '15px !important',
+    borderColor: '#b7d0de',
+    margin: '15px',
   },
 }));
 
@@ -66,8 +68,14 @@ function Menu(props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  const signOut = () => {
-    Auth.signOut().finally((window.location.href = '/'));
+
+  const signOut = async () => {
+    try {
+      await Auth.signOut();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('error signing out: ', error);
+    }
   };
 
   const drawer = (
@@ -75,11 +83,7 @@ function Menu(props) {
       <div className={classes.avatarContainer}>
         <Avatar
           className={classes.avatar}
-          // ref={anchorRef}
           src={user.pictureURL}
-          sx={{ width: 130, height: 130 }}
-
-          // onClick={handleToggle}
         />
         <div className={classes.name}>{user.name}</div>
         <Button onClick={signOut} className={classes.logoutButton} variant="text">
@@ -143,7 +147,12 @@ function Menu(props) {
         }}
         sx={{
           display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: drawerWidth,
+            backgroundColor: '#102E4A',
+            color: 'white',
+          },
         }}
       >
         {drawer}
@@ -152,7 +161,12 @@ function Menu(props) {
         variant="permanent"
         sx={{
           display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: drawerWidth,
+            backgroundColor: '#102E4A',
+            color: 'white',
+          },
         }}
         PaperProps={{
           sx: {
